@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-router.post("/tasks", taskController.createTask);
-router.get("/tasks", taskController.getTasks);
-router.put("/tasks/:id", taskController.updateTask);
-router.delete("/tasks/:id", taskController.deleteTask);
+router.post("/tasks", taskController.createTask); //posting tasks
+router.get("/tasks", taskController.getTasks); //mengambil tasks
+router.put("/tasks/:id", taskController.updateTask); //memasukkan tasks
+router.delete("/tasks/:id", taskController.deleteTask); //menghapus tasks
 
 module.exports = router;

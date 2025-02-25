@@ -40,5 +40,16 @@ const taskController = {
     }
   },
 };
+  exports.getTasks = async (req, res) => {
+    try {
+      const tasks = await Task.findAll({
+          where: { user_id: req.user.id } // Sesuai dengan autentikasi
+      });
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ error: "Gagal mengambil tugas" });
+  }
+};
+
 
 module.exports = taskController;

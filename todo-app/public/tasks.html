@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Tugas</title>
+</head>
+<body>
+    <h2>Daftar Tugas</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Judul</th>
+                <th>Deskripsi</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="taskList"></tbody>
+    </table>
+
+    <script>
+        // mengambil data tugas dari API
+        fetch("http://localhost:4000/api/tasks", {
+    method: "GET",
+    headers: {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQwNDcwMzkxLCJleHAiOjE3NDA0NzM5OTF9.HgImBNwNsLtNuglqSXRHcwUA3CIdg47jx8CyLZI7Zao", // ganti dengan token yang valid
+        "Content-Type": "application/json"
+    }
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error("Gagal mengambil data tugas");
+    }
+    return response.json();
+})
+.then(tasks => {
+    let taskList = document.getElementById("taskList");
+    taskList.innerHTML = ""; // bersihkan isi sebelumnya
+    tasks.forEach(task => {
+        let row = `
+            <tr>
+                <td>${task.id}</td>
+                <td>${task.title}</td>
+                <td>${task.description}</td>
+                <td>${task.completed ? "✅ Selesai" : "❌ Belum Selesai"}</td>
+            </tr>
+        `;
+        taskList.innerHTML += row;
+    });
+})
+.catch(error => {
+    console.error("Error fetching tasks:", error);
+    document.body.innerHTML += "<p style='color: red;'>Gagal mengambil data tugas</p>";
+});
+    </script>
+</body>
+</html>

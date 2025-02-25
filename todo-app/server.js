@@ -2,6 +2,7 @@ const express = require("express");
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const Task = require ("./models/taskModel");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
@@ -23,9 +24,9 @@ app.get("/", async (req, res) => {
   }
 });
 
-// app.get("/", (req, res) => {
-//   res.send("Server is running!");
-// });
+app.get("/", (req, res) => {
+  res.send("Server is running!");
+});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

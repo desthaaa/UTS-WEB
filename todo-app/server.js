@@ -11,16 +11,11 @@ const port = process.env.PORT || 4000;
 app.set("views", path.join(__dirname, "views")); 
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api", taskRoutes);
+app.use("/auth", authRoutes);
+app.use("/tasks", taskRoutes);
 
 app.get("/", async (req, res) => {
-  try {
-      const tasks = await Task.findAll(); // ambil semua tugas
-      res.render("index", { tasks });
-  } catch (error) {
-      res.status(500).send("Gagal mengambil data tugas");
-  }
+  res.redirect("/auth/login");
 });
 
 app.get("/", (req, res) => {

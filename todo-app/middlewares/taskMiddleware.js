@@ -8,4 +8,4 @@ const validateTask = (req, res, next) => {
     next(); 
 };
 
-module.exports = { validateTask };
+module.exports = validateTask;

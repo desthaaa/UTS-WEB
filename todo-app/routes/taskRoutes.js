@@ -1,14 +1,16 @@
 const express = require("express");
 const taskController = require("../controllers/taskController");
-const taskMiddleware = require("../middlewares/taskMiddleware");
+const authMiddleware = require("../middlewares/authMiddleware");
+const validateTask = require("../middlewares/taskMiddleware");
 
 const router = express.Router();
 
-router.use(taskMiddleware);
+router.use(authMiddleware);
 
-router.post("/tasks", taskController.createTask); //posting tasks
-router.get("/tasks", taskController.getTasks); //mengambil tasks
-router.put("/tasks/:id", taskController.updateTask); //memasukkan tasks
-router.delete("/tasks/:id", taskController.deleteTask); //menghapus tasks
+router.post("/", validateTask, taskController.createTask);
+router.put("/:id", validateTask, taskController.updateTask);
+
+router.get("/", taskController.getTasks);
+router.delete("/:id", taskController.deleteTask);
 
 module.exports = router;

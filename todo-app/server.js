@@ -18,7 +18,7 @@ app.use("/auth", authRoutes);
 app.use("/tasks", taskRoutes);
 
 app.get("/", (req, res) => {
-  res.redirect("/auth/login");
+  res.redirect("/login");
 });
 
 app.listen(port, () => {

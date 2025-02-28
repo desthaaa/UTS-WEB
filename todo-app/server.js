@@ -35,6 +35,8 @@
 
 const express = require("express");
 const path = require("path");
+const authRoutes = require("./routes/authRoutes");
+const taskRoutes = require("./routes/taskRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -43,7 +45,13 @@ const port = process.env.PORT || 4000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public"))); //
+app.use(express.static(path.join(__dirname, "public")));
+
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+
+app.use("/auth", authRoutes);
+app.use("/tasks", taskRoutes);
 
 // ke halaman login
 app.get("/", (req, res) => {
@@ -57,6 +65,12 @@ app.get("/login", (req, res) => {
 
 app.get("/register", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "register.html"));
+});
+
+app._router.stack.forEach(function (r) {
+  if (r.route && r.route.path) {
+      console.log(r.route.path);
+  }
 });
 
 app.listen(port, () => {

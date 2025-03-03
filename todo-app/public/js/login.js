@@ -13,8 +13,8 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     .then(response => response.json())
     .then(data => {
         if (data.token) {
-            localStorage.setItem("token", data.token);
-            window.location.href = "/tasks.html"; // Redirect setelah login sukses
+            localStorage.setItem("token", data.token); 
+            window.location.href = "/homepage"; 
         } else {
             errorMessage.textContent = data.message || "Login gagal!";
         }

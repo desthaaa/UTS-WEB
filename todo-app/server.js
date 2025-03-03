@@ -67,6 +67,10 @@ app.get("/register", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 
+app.get("/homepage", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "homepage.html"));
+});
+
 app._router.stack.forEach(function (r) {
   if (r.route && r.route.path) {
       console.log(r.route.path);

@@ -52,3 +52,30 @@ function addTask() {
         alert("Mohon isi judul dan deskripsi tugas!");
     }
 }
+
+function editTask(id, title, description) {
+    document.getElementById("editTaskId").value = id;
+    document.getElementById("editTaskTitle").value = title;
+    document.getElementById("editTaskDescription").value = description;
+    document.getElementById("editTaskModal").style.display = "block";
+}
+
+// Fungsi untuk menyimpan perubahan setelah edit
+function saveTask() {
+    let id = document.getElementById("editTaskId").value;
+    let title = document.getElementById("editTaskTitle").value;
+    let description = document.getElementById("editTaskDescription").value;
+
+    fetch(`/api/tasks/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Tugas berhasil diperbarui:", data);
+        document.getElementById("editTaskModal").style.display = "none";
+        loadTasks(); // Refresh daftar tugas
+    })
+    .catch(error => console.error("Error updating task:", error));
+}

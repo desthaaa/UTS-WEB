@@ -13,8 +13,15 @@ const Task = {
     await db.promise().query("UPDATE tasks SET title = ?, description = ?, completed = ? WHERE id = ?", [title, description, completed, taskId]);
   },
   delete: async (taskId) => {
-    await db.promise().query("DELETE FROM tasks WHERE id = ?", [taskId]);
+    console.log(`Menghapus tugas dengan ID: ${taskId}`); // Debugging
+    const [result] = await db.promise().query(
+      "DELETE FROM tasks WHERE id = ?",
+      [taskId]
+    );
+    console.log(`Affected Rows: ${result.affectedRows}`); // Debugging
+    return result.affectedRows > 0; // Pastikan ini mengembalikan true jika berhasil
   },
+
 };
 
 module.exports = Task;

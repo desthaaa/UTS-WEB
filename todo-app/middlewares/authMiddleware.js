@@ -26,7 +26,7 @@ const authMiddleware = (req, res, next) => {
         return res.status(401).json({ message: "Access denied. No token provided." });
     }
 
-    const token = authHeader.split(" ")[1]; // ✅ Ambil token setelah "Bearer "
+    const token = authHeader.split(" ")[1]; //  Ambil token setelah "Bearer "
     console.log("Extracted Token:", token); // Debugging
 
     try {

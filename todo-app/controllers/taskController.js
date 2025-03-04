@@ -1,17 +1,24 @@
 const db = require("../config/db");
 
+const util = require("util");
+db.query = util.promisify(db.query).bind(db);
+const Task = require("../models/taskModel");
+
 exports.createTask = async (req, res) => {
     const { title, category, deadline } = req.body;
-    console.log(" Data yang diterima dari frontend:", req.body);
+    const user_id = req.user?.userId; // Ambil user_id dari token (pastikan middleware autentikasi sudah ada)
 
-    console.log("Data diterima dari frontend:", { title, category, deadline }); // Debugging
+    console.log("Data diterima dari frontend:", { title, category, deadline, user_id });
 
-    if (!title || !category || !deadline) {
+    if (!title || !category || !deadline || !user_id) {
         return res.status(400).json({ message: "Semua field harus diisi!" });
     }
 
     try {
-        await db.query("INSERT INTO tasks (title, category, deadline) VALUES (?, ?, ?)", [title, category, deadline]);
+        await db.query(
+            "INSERT INTO tasks (title, category, deadline, user_id) VALUES (?, ?, ?, ?)",
+            [title, category, deadline, user_id]
+        );
         res.status(201).json({ message: "Task created successfully" });
     } catch (err) {
         console.error("Database error:", err);
@@ -20,26 +27,43 @@ exports.createTask = async (req, res) => {
 };
 
 exports.getTasks = async (req, res) => {
-  try {
-      const [rows] = await db.query("SELECT * FROM tasks");
-      console.log(" Data tugas dari database:", rows); // Debugging
-      res.json(rows);
-  } catch (err) {
-      console.error(" Database error:", err);
-      res.status(500).json({ message: "Gagal mengambil tugas" });
-  }
+    try {
+        const user_id = req.user?.userId; // Ambil user_id dari token yang sudah diverifikasi
+        if (!user_id) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        // Ambil hanya tugas milik user yang sedang login
+        const rows = await db.query("SELECT * FROM tasks WHERE user_id = ?", [user_id]);
+
+        console.log("Data tugas dari database untuk user_id:", user_id, rows); // Debugging
+        res.json(rows);
+    } catch (err) {
+        console.error("Database error:", err);
+        res.status(500).json({ message: "Gagal mengambil tugas" });
+    }
 };
 
 exports.deleteTask = async (req, res) => {
-  const { id } = req.params;
-  try {
-      await db.query("DELETE FROM tasks WHERE id = ?", [id]);
-      res.json({ message: "Tugas berhasil dihapus" });
-  } catch (err) {
-      console.error("Database error:", err);
-      res.status(500).json({ message: "Gagal menghapus tugas" });
-  }
+    const { id } = req.params;
+    console.log(`Mencoba menghapus tugas dengan ID: ${id}`); // Debugging
+
+    try {
+        // Panggil model Task.delete
+        const result = await Task.delete(id);
+        console.log(`Hasil penghapusan dari model Task: ${result}`); // Debugging
+
+        if (!result) {
+            return res.status(404).json({ message: "Tugas tidak ditemukan atau sudah dihapus!" });
+        }
+
+        res.json({ message: "Tugas berhasil dihapus" });
+    } catch (err) {
+        console.error("Database error:", err);
+        res.status(500).json({ message: "Gagal menghapus tugas" });
+    }
 };
+
 
 exports.updateTask = async (req, res) => {
   const { id } = req.params;
@@ -65,25 +89,5 @@ exports.updateTask = async (req, res) => {
   } catch (err) {
       console.error("Database error:", err);
       res.status(500).json({ message: "Gagal memperbarui tugas" });
-  }
-};
-
-exports.createTask = async (req, res) => {
-  const { title, category, deadline } = req.body;
-
-  console.log(" Data dari frontend:", { title, category, deadline });  //  Debugging
-
-  if (!title || !category || !deadline) {
-      console.log(" Data tidak lengkap!");
-      return res.status(400).json({ message: "Semua field harus diisi!" });
-  }
-
-  try {
-      await db.query("INSERT INTO tasks (title, category, deadline) VALUES (?, ?, ?)", [title, category, deadline]);
-      console.log(" Data berhasil disimpan ke database!");
-      res.status(201).json({ message: "Task created successfully" });
-  } catch (err) {
-      console.error(" Database error:", err);
-      res.status(500).json({ message: "Gagal menyimpan tugas" });
   }
 };

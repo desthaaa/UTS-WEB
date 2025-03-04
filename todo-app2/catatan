@@ -1,0 +1,13 @@
+Gunakan Postman untuk menguji endpoint:
+
+Registrasi: POST /api/auth/register
+
+Login: POST /api/auth/login
+
+Buat Task: POST /api/tasks
+
+Lihat Tasks: GET /api/tasks
+
+Update Task: PUT /api/tasks/:id
+
+Hapus Task: DELETE /api/tasks/:id

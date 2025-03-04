@@ -1,41 +1,44 @@
-document.getElementById("taskForm").addEventListener("submit", async function(event) {
+document.getElementById("taskForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
     const title = document.getElementById("title").value.trim();
     const category = document.getElementById("category").value.trim();
     const deadline = document.getElementById("deadline").value.trim();
     const message = document.getElementById("message");
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token"); // ✅ Ambil token dari localStorage
 
-    console.log(" Data sebelum dikirim:", { title, category, deadline });
+    if (!token) {
+        message.style.color = "red";
+        message.textContent = "Anda belum login!";
+        return;
+    }
 
     if (!title || !category || !deadline) {
-        console.log(" Data tidak lengkap!");
         message.style.color = "red";
         message.textContent = "Semua field harus diisi!";
         return;
     }
 
-    try {
-        const response = await fetch("/tasks", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ title, category, deadline })
-        });
+    fetch("http://localhost:4000/tasks", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` // ✅ Pastikan token dikirim dengan format yang benar
+        },
+        body: JSON.stringify({ title, category, deadline })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Response dari server:", data); // Debugging
 
-        const data = await response.json();
-        console.log(" Response dari server:", data);
-
-        if (response.status === 201) {
-            window.location.href = "/tasklist.html";
+        if (data.message === "Task created successfully") {
+            window.location.href = "/tasklist.html"; // ✅ Redirect ke tasklist setelah menyimpan
         } else {
             message.style.color = "red";
             message.textContent = data.message || "Gagal menambahkan tugas!";
         }
-    } catch (error) {
-        console.error(" Fetch error:", error);
-    }
+    })
+    .catch(error => {
+        console.error("Fetch error:", error);
+    });
 });

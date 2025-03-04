@@ -71,10 +71,10 @@ exports.updateTask = async (req, res) => {
 exports.createTask = async (req, res) => {
   const { title, category, deadline } = req.body;
 
-  console.log("📩 Data dari frontend:", { title, category, deadline });  //  Debugging
+  console.log(" Data dari frontend:", { title, category, deadline });  //  Debugging
 
   if (!title || !category || !deadline) {
-      console.log("⚠️ Data tidak lengkap!");
+      console.log(" Data tidak lengkap!");
       return res.status(400).json({ message: "Semua field harus diisi!" });
   }
 

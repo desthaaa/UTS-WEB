@@ -1,4 +1,4 @@
-document.getElementById("registerForm").addEventListener("submit", async function (event) {
+document.getElementById("registerForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
     const username = document.getElementById("regUsername").value.trim();
@@ -11,17 +11,14 @@ document.getElementById("registerForm").addEventListener("submit", async functio
         return;
     }
 
-    try {
-        const response = await fetch("http://localhost:4000/auth/register", { // ✅ Pakai URL lengkap
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-        console.log("Response:", data);
-
-        if (response.ok) {
+    fetch("http://localhost:4000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Registrasi berhasil!") {
             registerMessage.style.color = "green";
             registerMessage.textContent = "Registrasi berhasil! Silakan login.";
             setTimeout(() => {
@@ -31,9 +28,10 @@ document.getElementById("registerForm").addEventListener("submit", async functio
             registerMessage.style.color = "red";
             registerMessage.textContent = data.message || "Registrasi gagal!";
         }
-    } catch (error) {
+    })
+    .catch(error => {
         registerMessage.style.color = "red";
         registerMessage.textContent = "Terjadi kesalahan, coba lagi.";
-        console.error("Error:", error);
-    }
+        console.error("Fetch error:", error);
+    });
 });

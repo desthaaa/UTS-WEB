@@ -1,35 +1,39 @@
-document.getElementById("registerForm").addEventListener("submit", function(event) {
+document.getElementById("registerForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const username = document.getElementById("regUsername").value.trim();
     const password = document.getElementById("regPassword").value.trim();
     const registerMessage = document.getElementById("register-message");
 
-    console.log("Mengirim request registrasi:", { username, password }); // ✅ Debugging
+    if (!username || !password) {
+        registerMessage.style.color = "red";
+        registerMessage.textContent = "Semua field harus diisi!";
+        return;
+    }
 
-    fetch("/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Response dari server:", data); // ✅ Debugging
+    try {
+        const response = await fetch("http://localhost:4000/auth/register", { // ✅ Pakai URL lengkap
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
 
-        if (data.token) {  // ✅ Registrasi berhasil jika token diterima
+        const data = await response.json();
+        console.log("Response:", data);
+
+        if (response.ok) {
             registerMessage.style.color = "green";
-            registerMessage.textContent = "Registrasi berhasil! Mengarahkan ke halaman login...";
+            registerMessage.textContent = "Registrasi berhasil! Silakan login.";
             setTimeout(() => {
-                window.location.href = "/login.html"; // ✅ Redirect ke login
+                window.location.href = "/login";
             }, 2000);
         } else {
             registerMessage.style.color = "red";
             registerMessage.textContent = data.message || "Registrasi gagal!";
         }
-    })
-    .catch(error => {
-        console.error("Fetch error:", error);
+    } catch (error) {
         registerMessage.style.color = "red";
         registerMessage.textContent = "Terjadi kesalahan, coba lagi.";
-    });
+        console.error("Error:", error);
+    }
 });

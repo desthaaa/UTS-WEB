@@ -5,7 +5,7 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     const password = document.getElementById("password").value;
     const errorMessage = document.getElementById("error-message");
 
-    fetch("/auth/login", {
+    fetch("http://localhost:4000/auth/login", { // ✅ Pakai URL lengkap
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -13,13 +13,15 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     .then(response => response.json())
     .then(data => {
         if (data.token) {
-            localStorage.setItem("token", data.token); 
+            localStorage.setItem("token", data.token);
             window.location.href = "/homepage"; 
         } else {
+            errorMessage.style.color = "red";
             errorMessage.textContent = data.message || "Login gagal!";
         }
     })
     .catch(error => {
+        errorMessage.style.color = "red";
         errorMessage.textContent = "Terjadi kesalahan, coba lagi.";
         console.error("Error:", error);
     });

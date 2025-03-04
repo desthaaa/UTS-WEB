@@ -1,34 +1,26 @@
-const User = require("../models/userModel");
-const { generateToken } = require("../config/auth");
-const bcrypt = require("bcryptjs");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('../models/userModel');
+const user = await User.findByUsername(email); // Gunakan fungsi yang tersedia di userModel.js
 
-const authController = {
-  register: async (req, res) => {
+const login = async (req, res) => {
     const { username, password } = req.body;
-    try {
-      const userId = await User.create(username, password);
-      const token = generateToken(userId);
-      res.status(201).json({ token });
-    } catch (err) {
-      res.status(500).json({ message: "Registration failed" });
+    const user = await User.findOne({ email });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(401).json({ message: "Email atau password salah" });
     }
-  },
-  login: async (req, res) => {
-    const { username, password } = req.body;
-    try {
-      const user = await User.findByUsername(username);
-      if (!user) return res.status(404).json({ message: "User not found" });
 
-      const isMatch = await bcrypt.compare(password, user.password);
-
-      if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-
-      const token = generateToken(user.id);
-      res.json({ token });
-    } catch (err) {
-      res.status(500).json({ message: "Login failed" });
-    }
-  },
+    const token = jwt.sign({ userId: user.id }, "SECRET_KEY", { expiresIn: "1h" });
+    res.json({ token });
 };
 
-module.exports = authController;
+const register = async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create(username, hashedPassword);
+
+    res.status(201).json({ message: "User berhasil didaftarkan" });
+};
+
+module.exports = { login, register };

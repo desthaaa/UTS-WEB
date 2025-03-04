@@ -8,10 +8,20 @@
 </head>
 <body>
     <h1>Daftar Tugas</h1>
-    <a href="/homepage.html">Tambah Tugas Baru</a> | 
+    <a href="/homepage">Tambah Tugas Baru</a> | 
     <a href="#" id="logout">Logout</a>
 
-    <ul id="taskList"></ul>
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Judul Buku</th>
+                <th>Kategori</th>
+                <th>Deadline</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="task-list"></tbody>
+    </table>    
 
     <script src="/js/tasklist.js"></script>
 </body>

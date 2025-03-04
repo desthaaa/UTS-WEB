@@ -1,84 +1,89 @@
-const Task = require("../models/taskModel");
+const db = require("../config/db");
 
-const taskController = {
-  createTask: async (req, res) => {
-    const { title, description } = req.body;
-    const userId = req.user.id;
-    try {
-      const taskId = await Task.create(userId, title, description);
-      res.status(201).json({ taskId });
-    } catch (err) {
-      res.status(500).json({ message: "Task creation failed" });
+exports.createTask = async (req, res) => {
+    const { title, category, deadline } = req.body;
+    console.log(" Data yang diterima dari frontend:", req.body);
+
+    console.log("Data diterima dari frontend:", { title, category, deadline }); // Debugging
+
+    if (!title || !category || !deadline) {
+        return res.status(400).json({ message: "Semua field harus diisi!" });
     }
-  },
-  getTasks: async (req, res) => {
-    const userId = req.user.id;
+
     try {
-      const tasks = await Task.findAllByUserId(userId);
-      res.json(tasks);
+        await db.query("INSERT INTO tasks (title, category, deadline) VALUES (?, ?, ?)", [title, category, deadline]);
+        res.status(201).json({ message: "Task created successfully" });
     } catch (err) {
-      res.status(500).json({ message: "Failed to fetch tasks" });
+        console.error("Database error:", err);
+        res.status(500).json({ message: "Gagal menyimpan tugas" });
     }
-  },
-  updateTask: async (req, res) => {
-    const { id } = req.params;
-    const { title, description, completed } = req.body;
-    try {
-      await Task.update(id, title, description, completed);
-      res.json({ message: "Task updated" });
-    } catch (err) {
-      res.status(500).json({ message: "Task update failed" });
-    }
-  },
-  deleteTask: async (req, res) => {
-    const { id } = req.params;
-    try {
-      await Task.delete(id);
-      res.json({ message: "Task deleted" });
-    } catch (err) {
-      res.status(500).json({ message: "Task deletion failed" });
-    }
-  },
 };
 
-exports.getTasks = (req, res) => {
-  db.query("SELECT * FROM tasks", (err, results) => {
-      if (err) {
-          console.error(err);
-          return res.status(500).json({ message: "Database error" });
-      }
-      res.json(results);
-  });
+exports.getTasks = async (req, res) => {
+  try {
+      const [rows] = await db.query("SELECT * FROM tasks");
+      console.log(" Data tugas dari database:", rows); // Debugging
+      res.json(rows);
+  } catch (err) {
+      console.error(" Database error:", err);
+      res.status(500).json({ message: "Gagal mengambil tugas" });
+  }
 };
 
-exports.deleteTask = (req, res) => {
+exports.deleteTask = async (req, res) => {
   const { id } = req.params;
-  db.query("DELETE FROM tasks WHERE id = ?", [id], (err) => {
-      if (err) {
-          console.error(err);
-          return res.status(500).json({ message: "Gagal menghapus tugas" });
-      }
+  try {
+      await db.query("DELETE FROM tasks WHERE id = ?", [id]);
       res.json({ message: "Tugas berhasil dihapus" });
-  });
+  } catch (err) {
+      console.error("Database error:", err);
+      res.status(500).json({ message: "Gagal menghapus tugas" });
+  }
 };
-exports.createTask = (req, res) => {
-  console.log("Request body:", req.body);  // Log request data
-  console.log("User ID:", req.user.id);  // Log user ID dari JWT
 
+exports.updateTask = async (req, res) => {
+  const { id } = req.params;
   const { title, category, deadline } = req.body;
-  const userId = req.user.id;  // ID pengguna dari JWT
+
+  console.log("Update Task:", { id, title, category, deadline }); // Debugging
 
   if (!title || !category || !deadline) {
       return res.status(400).json({ message: "Semua field harus diisi!" });
   }
 
-  const query = "INSERT INTO tasks (user_id, title, category, deadline) VALUES (?, ?, ?, ?)";
-  db.query(query, [userId, title, category, deadline], (err, result) => {
-      if (err) {
-          console.error("Database error:", err);
-          return res.status(500).json({ message: "Gagal menyimpan tugas" });
+  try {
+      const [result] = await db.query(
+          "UPDATE tasks SET title = ?, category = ?, deadline = ? WHERE id = ?",
+          [title, category, deadline, id]
+      );
+
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ message: "Tugas tidak ditemukan!" });
       }
-      res.status(201).json({ message: "Task created successfully", taskId: result.insertId });
-  });
+
+      res.json({ message: "Task updated successfully" });
+  } catch (err) {
+      console.error("Database error:", err);
+      res.status(500).json({ message: "Gagal memperbarui tugas" });
+  }
 };
-module.exports = taskController;
+
+exports.createTask = async (req, res) => {
+  const { title, category, deadline } = req.body;
+
+  console.log("📩 Data dari frontend:", { title, category, deadline });  //  Debugging
+
+  if (!title || !category || !deadline) {
+      console.log("⚠️ Data tidak lengkap!");
+      return res.status(400).json({ message: "Semua field harus diisi!" });
+  }
+
+  try {
+      await db.query("INSERT INTO tasks (title, category, deadline) VALUES (?, ?, ?)", [title, category, deadline]);
+      console.log(" Data berhasil disimpan ke database!");
+      res.status(201).json({ message: "Task created successfully" });
+  } catch (err) {
+      console.error(" Database error:", err);
+      res.status(500).json({ message: "Gagal menyimpan tugas" });
+  }
+};

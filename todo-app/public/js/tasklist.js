@@ -8,16 +8,23 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .then(response => response.json())
     .then(tasks => {
-        taskList.innerHTML = "";
+        taskList.innerHTML = ""; // Kosongkan tabel sebelum ditampilkan
 
         tasks.forEach(task => {
-            const li = document.createElement("li");
-            li.innerHTML = `<strong>${task.title}</strong> - ${task.category} (Deadline: ${task.deadline})
-                <a href="#" class="edit">Edit</a> |
-                <button class="delete" data-id="${task.id}">Hapus</button>`;
-            taskList.appendChild(li);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${task.title}</td>
+                <td>${task.category}</td>
+                <td>${task.deadline}</td>
+                <td>
+                    <button class="edit" data-id="${task.id}">Edit</button>
+                    <button class="delete" data-id="${task.id}">Hapus</button>
+                </td>
+            `;
+            taskList.appendChild(tr);
         });
 
+        // Fitur Hapus Tugas
         document.querySelectorAll(".delete").forEach(button => {
             button.addEventListener("click", function () {
                 const taskId = this.getAttribute("data-id");
@@ -31,6 +38,28 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .catch(error => console.error("Error:", error));
 });
+
+async function fetchTasks() {
+    const token = localStorage.getItem("token");
+
+    try {
+        const response = await fetch("/tasks", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const data = await response.json();
+        console.log(" Data tugas dari server:", data); //  Debugging
+
+        if (response.status === 200) {
+            displayTasks(data);
+        } else {
+            console.error(" Gagal mengambil tugas:", data.message);
+        }
+    } catch (error) {
+        console.error(" Fetch error:", error);
+    }
+}
 
 // Logout Functionality
 document.getElementById("logout").addEventListener("click", function () {

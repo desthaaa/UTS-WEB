@@ -3,13 +3,14 @@ import db from "../config/db.js";
 const taskController = {
     createTask: async (req, res) => {
         const { title, category, deadline } = req.body;
-        const user_id = req.user?.id;
+        const user_id = req.user?.userId; // Sesuai dengan token yang di-decode
 
         console.log("Menerima request tambah tugas:");
         console.log("Title:", title);
         console.log("Category:", category);
         console.log("Deadline:", deadline);
         console.log("User ID:", user_id); //Debugging
+        console.log("Task Controller - User ID:", user_id);
 
         if (!title || !category || !deadline) {
             return res.status(400).json({ message: "Semua field harus diisi!" });
@@ -20,7 +21,17 @@ const taskController = {
         }
 
         try {
-            await db.query("INSERT INTO tasks (title, category, deadline, user_id) VALUES (?, ?, ?, ?)", [title, category, deadline, user_id]);
+            db.query("INSERT INTO tasks (title, category, deadline, user_id) VALUES (?, ?, ?, ?)", 
+            [title, category, deadline, user_id], 
+            (err, result) => {
+        if (err) {
+            console.error("Error saat menambahkan tugas:", err);
+            return res.status(500).json({ message: "Gagal menambahkan tugas" });
+        }
+        res.status(201).json({ message: "Tugas berhasil ditambahkan" });
+    }
+);
+
             res.status(201).json({ message: "Tugas berhasil ditambahkan" });
         } catch (error) {
             console.error("Error saat menambahkan tugas:", error);
@@ -29,7 +40,7 @@ const taskController = {
     },
 
     getTasks: async (req, res) => {
-        const user_id = req.user?.id;
+        const user_id = req.user?.userId; // Sesuai dengan token yang di-decode
         console.log("Mengambil tugas untuk user ID:", user_id); //Debugging
         try {
             const [tasks] = await db.query("SELECT * FROM tasks WHERE user_id = ?", [user_id]);

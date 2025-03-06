@@ -13,11 +13,13 @@ const authMiddleware = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log("Decoded Token:", decoded); // ✅ Debugging
         req.user = decoded; // ✅ Simpan user ke req
+        console.log("Middleware - req.user:", req.user);
         next();
     } catch (error) {
         console.error("Invalid token:", error);
         res.status(403).json({ message: "Invalid token" });
     }
 };
+
 
 export default authMiddleware;

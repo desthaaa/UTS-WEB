@@ -13,8 +13,8 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     .then(response => response.json())
     .then(data => {
         if (data.token) {
-            localStorage.setItem("token", data.token); // ✅ Simpan token di localStorage
-            window.location.href = "/homepage"; // ✅ Redirect ke homepage setelah login
+            localStorage.setItem("token", data.token); //Simpan token di localStorage
+            window.location.href = "/homepage"; //Redirect ke homepage setelah login
         } else {
             errorMessage.textContent = data.message || "Login gagal!";
         }

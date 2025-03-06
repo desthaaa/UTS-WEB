@@ -36,10 +36,12 @@
 import express from "express";
 import path from "path";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
-import { fileURLToPath } from "url";
+import db from "./config/db.js"; // Pastikan ini sudah ada
 
+// Konversi __dirname untuk ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -59,28 +61,19 @@ app.set("view engine", "ejs");
 app.use("/auth", authRoutes);
 app.use("/tasks", taskRoutes);
 
-// ke halaman login
-app.get("/", (req, res) => {
-    res.redirect("/login");
-});
+// Routing untuk halaman
+app.get("/", (req, res) => res.redirect("/login"));
+app.get("/login", (req, res) => res.render("login"));
+app.get("/register", (req, res) => res.render("register"));
+app.get("/homepage", (req, res) => res.render("homepage"));
 
-// login.html dan register.html bisa diakses
-app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "login.html"));
-});
-
-app.get("/register", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "register.html"));
-});
-
-app.get("/homepage", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "homepage.html"));
-});
-
-// Debugging routes
-app._router.stack.forEach(function (r) {
-    if (r.route && r.route.path) {
-        console.log(r.route.path);
+app.get("/tasklist", async (req, res) => {
+    try {
+        const [tasks] = await db.query("SELECT * FROM tasks");
+        res.render("tasklist", { tasks });
+    } catch (error) {
+        console.error("Error mengambil tugas:", error);
+        res.status(500).send("Terjadi kesalahan saat mengambil tugas.");
     }
 });
 

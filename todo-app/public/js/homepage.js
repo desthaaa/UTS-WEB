@@ -1,17 +1,11 @@
-document.getElementById("taskForm").addEventListener("submit", function(event) {
+document.getElementById("taskForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const title = document.getElementById("title").value.trim();
     const category = document.getElementById("category").value.trim();
     const deadline = document.getElementById("deadline").value.trim();
     const message = document.getElementById("message");
-    const token = localStorage.getItem("token"); // ✅ Ambil token dari localStorage
-
-    if (!token) {
-        message.style.color = "red";
-        message.textContent = "Anda belum login!";
-        return;
-    }
+    const token = localStorage.getItem("token"); // Ambil token
 
     if (!title || !category || !deadline) {
         message.style.color = "red";
@@ -19,26 +13,32 @@ document.getElementById("taskForm").addEventListener("submit", function(event) {
         return;
     }
 
-    fetch("http://localhost:4000/tasks", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` // ✅ Pastikan token dikirim dengan format yang benar
-        },
-        body: JSON.stringify({ title, category, deadline })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Response dari server:", data); // Debugging
+    try {
+        const response = await fetch("/tasks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // pastikan token dikirim
+            },
+            body: JSON.stringify({ title, category, deadline })
+        });
 
-        if (data.message === "Task created successfully") {
-            window.location.href = "/tasklist.html"; // ✅ Redirect ke tasklist setelah menyimpan
+        const data = await response.json();
+        console.log("Response dari server:", data);
+
+        if (response.ok) {
+            message.style.color = "green";
+            message.textContent = "Tugas berhasil ditambahkan!";
+            setTimeout(() => {
+                window.location.href = "/tasklist";
+            }, 2000);
         } else {
             message.style.color = "red";
             message.textContent = data.message || "Gagal menambahkan tugas!";
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error("Fetch error:", error);
-    });
+        message.style.color = "red";
+        message.textContent = "Terjadi kesalahan, coba lagi!";
+    }
 });

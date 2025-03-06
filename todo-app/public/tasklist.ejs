@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Tugas</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Daftar Tugas</h1>
+        <a href="/homepage">Tambah Tugas Baru</a>
+        <a href="#" id="logout">Logout</a>
+        <table>
+            <thead>
+                <tr>
+                    <th>Judul Buku</th>
+                    <th>Kategori</th>
+                    <th>Deadline</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% tasks.forEach(task => { %>
+                    <tr>
+                        <td><%= task.title %></td>
+                        <td><%= task.category %></td>
+                        <td><%= task.deadline %></td>
+                        <td>
+                            <button class="edit" data-id="<%= task.id %>">Edit</button>
+                            <button class="delete" data-id="<%= task.id %>">Hapus</button>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <script src="/js/tasklist.js"></script>
+</body>
+</html>
